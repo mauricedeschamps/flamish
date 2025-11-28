@@ -1,7 +1,7 @@
 {
   "name": "Flemish Verbs Master",
   "short_name": "FlemishVerbs",
-  "description": "Learn Flemish verbs with audio and examples",
+  "description": "Learn 50 Flemish verbs with audio and examples",
   "lang": "en",
   "start_url": "/",
   "display": "standalone",
