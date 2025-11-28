@@ -130,7 +130,7 @@
 
         .verbs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
         }
@@ -141,7 +141,6 @@
             padding: 20px;
             box-shadow: var(--shadow);
             transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
         }
 
         .verb-card:hover {
@@ -172,34 +171,52 @@
             padding: 15px;
             background: var(--bg-primary);
             border-radius: 10px;
-            font-style: italic;
             color: var(--text-secondary);
             line-height: 1.5;
+            position: relative;
         }
 
-        .verb-audio {
+        .example-text {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .example-translation {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .audio-controls {
             margin-top: 15px;
             display: flex;
-            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .audio-btn {
             background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            border-radius: 20px;
+            padding: 8px 15px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 5px;
             cursor: pointer;
-            margin-right: 10px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-size: 0.85rem;
         }
 
         .audio-btn:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .audio-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .conjugation {
@@ -241,9 +258,23 @@
             font-size: 0.9rem;
         }
 
+        .audio-loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .verbs-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
             
             #search {
@@ -257,6 +288,14 @@
             
             .btn {
                 width: 200px;
+            }
+
+            .audio-controls {
+                flex-direction: column;
+            }
+
+            .audio-btn {
+                justify-content: center;
             }
         }
 
@@ -320,13 +359,9 @@
                 languageToggle: "🇯🇵 日本語",
                 installBtn: "📱 Install App",
                 contact: "Contact us",
-                audioText: "Play audio",
-                categories: {
-                    all: "All Verbs",
-                    common: "Common Verbs",
-                    action: "Action Verbs",
-                    daily: "Daily Life"
-                },
+                playVerb: "Play Verb",
+                playExample: "Play Example",
+                playing: "Playing...",
                 stats: "Showing {count} verbs"
             },
             ja: {
@@ -337,387 +372,595 @@
                 languageToggle: "🇺🇸 English",
                 installBtn: "📱 アプリをインストール",
                 contact: "お問い合わせ",
-                audioText: "音声を再生",
-                categories: {
-                    all: "すべての動詞",
-                    common: "基本動詞",
-                    action: "動作動詞",
-                    daily: "日常生活"
-                },
+                playVerb: "動詞を再生",
+                playExample: "例文を再生",
+                playing: "再生中...",
                 stats: "{count}個の動詞を表示中"
             }
         };
 
-        // Verb data - 50 verbs
+        // Verb data - 50 verbs with example sentences in Dutch only for audio
         const verbs = [
             {
                 dutch: "zijn",
                 translations: { en: "to be", ja: "～である" },
-                examples: { en: "Ik ben student. (I am a student)", ja: "Ik ben student. (私は学生です)" },
+                examples: {
+                    en: "Ik ben student. (I am a student)",
+                    ja: "Ik ben student. (私は学生です)",
+                    audio: "Ik ben student."
+                },
                 conjugation: ["ben", "bent", "is", "zijn"],
                 category: "common"
             },
             {
                 dutch: "hebben",
                 translations: { en: "to have", ja: "持つ" },
-                examples: { en: "Ik heb een boek. (I have a book)", ja: "Ik heb een boek. (私は本を持っています)" },
+                examples: {
+                    en: "Ik heb een boek. (I have a book)",
+                    ja: "Ik heb een boek. (私は本を持っています)",
+                    audio: "Ik heb een boek."
+                },
                 conjugation: ["heb", "hebt", "heeft", "hebben"],
                 category: "common"
             },
             {
                 dutch: "doen",
                 translations: { en: "to do", ja: "する" },
-                examples: { en: "Wat doe je? (What are you doing?)", ja: "Wat doe je? (何をしていますか?)" },
+                examples: {
+                    en: "Wat doe je? (What are you doing?)",
+                    ja: "Wat doe je? (何をしていますか?)",
+                    audio: "Wat doe je?"
+                },
                 conjugation: ["doe", "doet", "doet", "doen"],
                 category: "common"
             },
             {
                 dutch: "zeggen",
                 translations: { en: "to say", ja: "言う" },
-                examples: { en: "Hij zegt de waarheid. (He tells the truth)", ja: "Hij zegt de waarheid. (彼は真実を言います)" },
+                examples: {
+                    en: "Hij zegt de waarheid. (He tells the truth)",
+                    ja: "Hij zegt de waarheid. (彼は真実を言います)",
+                    audio: "Hij zegt de waarheid."
+                },
                 conjugation: ["zeg", "zegt", "zegt", "zeggen"],
                 category: "common"
             },
             {
                 dutch: "kunnen",
                 translations: { en: "can, to be able to", ja: "～できる" },
-                examples: { en: "Ik kan zwemmen. (I can swim)", ja: "Ik kan zwemmen. (私は泳ぐことができます)" },
+                examples: {
+                    en: "Ik kan zwemmen. (I can swim)",
+                    ja: "Ik kan zwemmen. (私は泳ぐことができます)",
+                    audio: "Ik kan zwemmen."
+                },
                 conjugation: ["kan", "kunt", "kan", "kunnen"],
                 category: "common"
             },
             {
                 dutch: "gaan",
                 translations: { en: "to go", ja: "行く" },
-                examples: { en: "We gaan naar school. (We go to school)", ja: "We gaan naar school. (私たちは学校へ行きます)" },
+                examples: {
+                    en: "We gaan naar school. (We go to school)",
+                    ja: "We gaan naar school. (私たちは学校へ行きます)",
+                    audio: "We gaan naar school."
+                },
                 conjugation: ["ga", "gaat", "gaat", "gaan"],
                 category: "action"
             },
             {
                 dutch: "zien",
                 translations: { en: "to see", ja: "見る" },
-                examples: { en: "Ik zie een vogel. (I see a bird)", ja: "Ik zie een vogel. (私は鳥を見ます)" },
+                examples: {
+                    en: "Ik zie een vogel. (I see a bird)",
+                    ja: "Ik zie een vogel. (私は鳥を見ます)",
+                    audio: "Ik zie een vogel."
+                },
                 conjugation: ["zie", "ziet", "ziet", "zien"],
                 category: "action"
             },
             {
                 dutch: "willen",
                 translations: { en: "to want", ja: "～したい" },
-                examples: { en: "Ik wil koffie drinken. (I want to drink coffee)", ja: "Ik wil koffie drinken. (私はコーヒーが飲みたい)" },
+                examples: {
+                    en: "Ik wil koffie drinken. (I want to drink coffee)",
+                    ja: "Ik wil koffie drinken. (私はコーヒーが飲みたい)",
+                    audio: "Ik wil koffie drinken."
+                },
                 conjugation: ["wil", "wilt", "wil", "willen"],
                 category: "common"
             },
             {
                 dutch: "komen",
                 translations: { en: "to come", ja: "来る" },
-                examples: { en: "Hij komt uit België. (He comes from Belgium)", ja: "Hij komt uit België. (彼はベルギーから来ました)" },
+                examples: {
+                    en: "Hij komt uit België. (He comes from Belgium)",
+                    ja: "Hij komt uit België. (彼はベルギーから来ました)",
+                    audio: "Hij komt uit België."
+                },
                 conjugation: ["kom", "komt", "komt", "komen"],
                 category: "action"
             },
             {
                 dutch: "moeten",
                 translations: { en: "must, to have to", ja: "～しなければならない" },
-                examples: { en: "Ik moet studeren. (I have to study)", ja: "Ik moet studeren. (私は勉強しなければならない)" },
+                examples: {
+                    en: "Ik moet studeren. (I have to study)",
+                    ja: "Ik moet studeren. (私は勉強しなければならない)",
+                    audio: "Ik moet studeren."
+                },
                 conjugation: ["moet", "moet", "moet", "moeten"],
                 category: "common"
             },
             {
                 dutch: "maken",
                 translations: { en: "to make", ja: "作る" },
-                examples: { en: "Ik maak een taart. (I make a cake)", ja: "Ik maak een taart. (私はケーキを作ります)" },
+                examples: {
+                    en: "Ik maak een taart. (I make a cake)",
+                    ja: "Ik maak een taart. (私はケーキを作ります)",
+                    audio: "Ik maak een taart."
+                },
                 conjugation: ["maak", "maakt", "maakt", "maken"],
                 category: "daily"
             },
             {
                 dutch: "nemen",
                 translations: { en: "to take", ja: "取る" },
-                examples: { en: "Neem een stoel. (Take a chair)", ja: "Neem een stoel. (椅子をお取りください)" },
+                examples: {
+                    en: "Neem een stoel. (Take a chair)",
+                    ja: "Neem een stoel. (椅子をお取りください)",
+                    audio: "Neem een stoel."
+                },
                 conjugation: ["neem", "neemt", "neemt", "nemen"],
                 category: "action"
             },
             {
                 dutch: "vinden",
                 translations: { en: "to find", ja: "見つける" },
-                examples: { en: "Ik vind mijn sleutels. (I find my keys)", ja: "Ik vind mijn sleutels. (私は鍵を見つけます)" },
+                examples: {
+                    en: "Ik vind mijn sleutels. (I find my keys)",
+                    ja: "Ik vind mijn sleutels. (私は鍵を見つけます)",
+                    audio: "Ik vind mijn sleutels."
+                },
                 conjugation: ["vind", "vindt", "vindt", "vinden"],
                 category: "action"
             },
             {
                 dutch: "geven",
                 translations: { en: "to give", ja: "与える" },
-                examples: { en: "Hij geeft een cadeau. (He gives a gift)", ja: "Hij geeft een cadeau. (彼は贈り物をあげます)" },
+                examples: {
+                    en: "Hij geeft een cadeau. (He gives a gift)",
+                    ja: "Hij geeft een cadeau. (彼は贈り物をあげます)",
+                    audio: "Hij geeft een cadeau."
+                },
                 conjugation: ["geef", "geeft", "geeft", "geven"],
                 category: "action"
             },
             {
                 dutch: "spreken",
                 translations: { en: "to speak", ja: "話す" },
-                examples: { en: "Spreek je Nederlands? (Do you speak Dutch?)", ja: "Spreek je Nederlands? (オランダ語を話しますか?)" },
+                examples: {
+                    en: "Spreek je Nederlands? (Do you speak Dutch?)",
+                    ja: "Spreek je Nederlands? (オランダ語を話しますか?)",
+                    audio: "Spreek je Nederlands?"
+                },
                 conjugation: ["spreek", "spreekt", "spreekt", "spreken"],
                 category: "common"
             },
             {
                 dutch: "weten",
                 translations: { en: "to know", ja: "知っている" },
-                examples: { en: "Ik weet het antwoord. (I know the answer)", ja: "Ik weet het antwoord. (私は答えを知っています)" },
+                examples: {
+                    en: "Ik weet het antwoord. (I know the answer)",
+                    ja: "Ik weet het antwoord. (私は答えを知っています)",
+                    audio: "Ik weet het antwoord."
+                },
                 conjugation: ["weet", "weet", "weet", "weten"],
                 category: "common"
             },
             {
                 dutch: "lezen",
                 translations: { en: "to read", ja: "読む" },
-                examples: { en: "Ik lees een boek. (I read a book)", ja: "Ik lees een boek. (私は本を読みます)" },
+                examples: {
+                    en: "Ik lees een boek. (I read a book)",
+                    ja: "Ik lees een boek. (私は本を読みます)",
+                    audio: "Ik lees een boek."
+                },
                 conjugation: ["lees", "leest", "leest", "lezen"],
                 category: "daily"
             },
             {
                 dutch: "schrijven",
                 translations: { en: "to write", ja: "書く" },
-                examples: { en: "Hij schrijft een brief. (He writes a letter)", ja: "Hij schrijft een brief. (彼は手紙を書きます)" },
+                examples: {
+                    en: "Hij schrijft een brief. (He writes a letter)",
+                    ja: "Hij schrijft een brief. (彼は手紙を書きます)",
+                    audio: "Hij schrijft een brief."
+                },
                 conjugation: ["schrijf", "schrijft", "schrijft", "schrijven"],
                 category: "daily"
             },
             {
                 dutch: "lopen",
                 translations: { en: "to walk", ja: "歩く" },
-                examples: { en: "We lopen in het park. (We walk in the park)", ja: "We lopen in het park. (私たちは公園を歩きます)" },
+                examples: {
+                    en: "We lopen in het park. (We walk in the park)",
+                    ja: "We lopen in het park. (私たちは公園を歩きます)",
+                    audio: "We lopen in het park."
+                },
                 conjugation: ["loop", "loopt", "loopt", "lopen"],
                 category: "action"
             },
             {
                 dutch: "staan",
                 translations: { en: "to stand", ja: "立つ" },
-                examples: { en: "Sta hier. (Stand here)", ja: "Sta hier. (ここに立ってください)" },
+                examples: {
+                    en: "Sta hier. (Stand here)",
+                    ja: "Sta hier. (ここに立ってください)",
+                    audio: "Sta hier."
+                },
                 conjugation: ["sta", "staat", "staat", "staan"],
                 category: "action"
             },
             {
                 dutch: "zitten",
                 translations: { en: "to sit", ja: "座る" },
-                examples: { en: "Zit je comfortabel? (Are you sitting comfortably?)", ja: "Zit je comfortabel? (快適に座っていますか?)" },
+                examples: {
+                    en: "Zit je comfortabel? (Are you sitting comfortably?)",
+                    ja: "Zit je comfortabel? (快適に座っていますか?)",
+                    audio: "Zit je comfortabel?"
+                },
                 conjugation: ["zit", "zit", "zit", "zitten"],
                 category: "action"
             },
             {
                 dutch: "eten",
                 translations: { en: "to eat", ja: "食べる" },
-                examples: { en: "We eten brood. (We eat bread)", ja: "We eten brood. (私たちはパンを食べます)" },
+                examples: {
+                    en: "We eten brood. (We eat bread)",
+                    ja: "We eten brood. (私たちはパンを食べます)",
+                    audio: "We eten brood."
+                },
                 conjugation: ["eet", "eet", "eet", "eten"],
                 category: "daily"
             },
             {
                 dutch: "drinken",
                 translations: { en: "to drink", ja: "飲む" },
-                examples: { en: "Ik drink water. (I drink water)", ja: "Ik drink water. (私は水を飲みます)" },
+                examples: {
+                    en: "Ik drink water. (I drink water)",
+                    ja: "Ik drink water. (私は水を飲みます)",
+                    audio: "Ik drink water."
+                },
                 conjugation: ["drink", "drinkt", "drinkt", "drinken"],
                 category: "daily"
             },
             {
                 dutch: "slapen",
                 translations: { en: "to sleep", ja: "眠る" },
-                examples: { en: "Het kind slaapt. (The child sleeps)", ja: "Het kind slaapt. (子供は眠っています)" },
+                examples: {
+                    en: "Het kind slaapt. (The child sleeps)",
+                    ja: "Het kind slaapt. (子供は眠っています)",
+                    audio: "Het kind slaapt."
+                },
                 conjugation: ["slaap", "slaapt", "slaapt", "slapen"],
                 category: "daily"
             },
             {
                 dutch: "werken",
                 translations: { en: "to work", ja: "働く" },
-                examples: { en: "Hij werkt in een kantoor. (He works in an office)", ja: "Hij werkt in een kantoor. (彼はオフィスで働きます)" },
+                examples: {
+                    en: "Hij werkt in een kantoor. (He works in an office)",
+                    ja: "Hij werkt in een kantoor. (彼はオフィスで働きます)",
+                    audio: "Hij werkt in een kantoor."
+                },
                 conjugation: ["werk", "werkt", "werkt", "werken"],
                 category: "daily"
             },
             {
                 dutch: "leren",
                 translations: { en: "to learn", ja: "学ぶ" },
-                examples: { en: "Ik leer Nederlands. (I learn Dutch)", ja: "Ik leer Nederlands. (私はオランダ語を学びます)" },
+                examples: {
+                    en: "Ik leer Nederlands. (I learn Dutch)",
+                    ja: "Ik leer Nederlands. (私はオランダ語を学びます)",
+                    audio: "Ik leer Nederlands."
+                },
                 conjugation: ["leer", "leert", "leert", "leren"],
                 category: "common"
             },
             {
                 dutch: "begrijpen",
                 translations: { en: "to understand", ja: "理解する" },
-                examples: { en: "Begrijp je de vraag? (Do you understand the question?)", ja: "Begrijp je de vraag? (質問を理解していますか?)" },
+                examples: {
+                    en: "Begrijp je de vraag? (Do you understand the question?)",
+                    ja: "Begrijp je de vraag? (質問を理解していますか?)",
+                    audio: "Begrijp je de vraag?"
+                },
                 conjugation: ["begrijp", "begrijpt", "begrijpt", "begrijpen"],
                 category: "common"
             },
             {
                 dutch: "denken",
                 translations: { en: "to think", ja: "考える" },
-                examples: { en: "Ik denk aan je. (I think of you)", ja: "Ik denk aan je. (あなたのことを考えています)" },
+                examples: {
+                    en: "Ik denk aan je. (I think of you)",
+                    ja: "Ik denk aan je. (あなたのことを考えています)",
+                    audio: "Ik denk aan je."
+                },
                 conjugation: ["denk", "denkt", "denkt", "denken"],
                 category: "common"
             },
             {
                 dutch: "kopen",
                 translations: { en: "to buy", ja: "買う" },
-                examples: { en: "We kopen groenten. (We buy vegetables)", ja: "We kopen groenten. (私たちは野菜を買います)" },
+                examples: {
+                    en: "We kopen groenten. (We buy vegetables)",
+                    ja: "We kopen groenten. (私たちは野菜を買います)",
+                    audio: "We kopen groenten."
+                },
                 conjugation: ["koop", "koopt", "koopt", "kopen"],
                 category: "daily"
             },
             {
                 dutch: "verkopen",
                 translations: { en: "to sell", ja: "売る" },
-                examples: { en: "Hij verkoopt zijn auto. (He sells his car)", ja: "Hij verkoopt zijn auto. (彼は車を売ります)" },
+                examples: {
+                    en: "Hij verkoopt zijn auto. (He sells his car)",
+                    ja: "Hij verkoopt zijn auto. (彼は車を売ります)",
+                    audio: "Hij verkoopt zijn auto."
+                },
                 conjugation: ["verkoop", "verkoopt", "verkoopt", "verkopen"],
                 category: "daily"
             },
             {
                 dutch: "betalen",
                 translations: { en: "to pay", ja: "支払う" },
-                examples: { en: "Ik betaal met creditcard. (I pay with credit card)", ja: "Ik betaal met creditcard. (私はクレジットカードで支払います)" },
+                examples: {
+                    en: "Ik betaal met creditcard. (I pay with credit card)",
+                    ja: "Ik betaal met creditcard. (私はクレジットカードで支払います)",
+                    audio: "Ik betaal met creditcard."
+                },
                 conjugation: ["betaal", "betaalt", "betaalt", "betalen"],
                 category: "daily"
             },
             {
                 dutch: "openen",
                 translations: { en: "to open", ja: "開ける" },
-                examples: { en: "Open de deur. (Open the door)", ja: "Open de deur. (ドアを開けてください)" },
+                examples: {
+                    en: "Open de deur. (Open the door)",
+                    ja: "Open de deur. (ドアを開けてください)",
+                    audio: "Open de deur."
+                },
                 conjugation: ["open", "opent", "opent", "openen"],
                 category: "action"
             },
             {
                 dutch: "sluiten",
                 translations: { en: "to close", ja: "閉める" },
-                examples: { en: "Sluit het raam. (Close the window)", ja: "Sluit het raam. (窓を閉めてください)" },
+                examples: {
+                    en: "Sluit het raam. (Close the window)",
+                    ja: "Sluit het raam. (窓を閉めてください)",
+                    audio: "Sluit het raam."
+                },
                 conjugation: ["sluit", "sluit", "sluit", "sluiten"],
                 category: "action"
             },
             {
                 dutch: "beginnen",
                 translations: { en: "to begin", ja: "始める" },
-                examples: { en: "We beginnen om 8 uur. (We begin at 8 o'clock)", ja: "We beginnen om 8 uur. (私たちは8時に始めます)" },
+                examples: {
+                    en: "We beginnen om 8 uur. (We begin at 8 o'clock)",
+                    ja: "We beginnen om 8 uur. (私たちは8時に始めます)",
+                    audio: "We beginnen om 8 uur."
+                },
                 conjugation: ["begin", "begint", "begint", "beginnen"],
                 category: "action"
             },
             {
                 dutch: "eindigen",
                 translations: { en: "to end", ja: "終える" },
-                examples: { en: "De film eindigt laat. (The movie ends late)", ja: "De film eindigt laat. (映画は遅くに終わります)" },
+                examples: {
+                    en: "De film eindigt laat. (The movie ends late)",
+                    ja: "De film eindigt laat. (映画は遅くに終わります)",
+                    audio: "De film eindigt laat."
+                },
                 conjugation: ["eindig", "eindigt", "eindigt", "eindigen"],
                 category: "action"
             },
             {
                 dutch: "wachten",
                 translations: { en: "to wait", ja: "待つ" },
-                examples: { en: "Wacht even. (Wait a moment)", ja: "Wacht even. (少し待ってください)" },
+                examples: {
+                    en: "Wacht even. (Wait a moment)",
+                    ja: "Wacht even. (少し待ってください)",
+                    audio: "Wacht even."
+                },
                 conjugation: ["wacht", "wacht", "wacht", "wachten"],
                 category: "action"
             },
             {
                 dutch: "ontmoeten",
                 translations: { en: "to meet", ja: "会う" },
-                examples: { en: "Ik ontmoet vrienden. (I meet friends)", ja: "Ik ontmoet vrienden. (私は友達に会います)" },
+                examples: {
+                    en: "Ik ontmoet vrienden. (I meet friends)",
+                    ja: "Ik ontmoet vrienden. (私は友達に会います)",
+                    audio: "Ik ontmoet vrienden."
+                },
                 conjugation: ["ontmoet", "ontmoet", "ontmoet", "ontmoeten"],
                 category: "daily"
             },
             {
                 dutch: "bellen",
                 translations: { en: "to call", ja: "電話する" },
-                examples: { en: "Ik bel mijn moeder. (I call my mother)", ja: "Ik bel mijn moeder. (私は母に電話します)" },
+                examples: {
+                    en: "Ik bel mijn moeder. (I call my mother)",
+                    ja: "Ik bel mijn moeder. (私は母に電話します)",
+                    audio: "Ik bel mijn moeder."
+                },
                 conjugation: ["bel", "belt", "belt", "bellen"],
                 category: "daily"
             },
             {
                 dutch: "horen",
                 translations: { en: "to hear", ja: "聞く" },
-                examples: { en: "Ik hoor muziek. (I hear music)", ja: "Ik hoor muziek. (私は音楽が聞こえます)" },
+                examples: {
+                    en: "Ik hoor muziek. (I hear music)",
+                    ja: "Ik hoor muziek. (私は音楽が聞こえます)",
+                    audio: "Ik hoor muziek."
+                },
                 conjugation: ["hoor", "hoort", "hoort", "horen"],
                 category: "action"
             },
             {
                 dutch: "luisteren",
                 translations: { en: "to listen", ja: "聴く" },
-                examples: { en: "Luister naar mij. (Listen to me)", ja: "Luister naar mij. (私の話を聞いてください)" },
+                examples: {
+                    en: "Luister naar mij. (Listen to me)",
+                    ja: "Luister naar mij. (私の話を聞いてください)",
+                    audio: "Luister naar mij."
+                },
                 conjugation: ["luister", "luistert", "luistert", "luisteren"],
                 category: "action"
             },
             {
                 dutch: "zoeken",
                 translations: { en: "to search", ja: "探す" },
-                examples: { en: "Ik zoek mijn sleutels. (I search for my keys)", ja: "Ik zoek mijn sleutels. (私は鍵を探しています)" },
+                examples: {
+                    en: "Ik zoek mijn sleutels. (I search for my keys)",
+                    ja: "Ik zoek mijn sleutels. (私は鍵を探しています)",
+                    audio: "Ik zoek mijn sleutels."
+                },
                 conjugation: ["zoek", "zoekt", "zoekt", "zoeken"],
                 category: "action"
             },
             {
                 dutch: "vragen",
                 translations: { en: "to ask", ja: "尋ねる" },
-                examples: { en: "Vraag de weg. (Ask for directions)", ja: "Vraag de weg. (道を尋ねてください)" },
+                examples: {
+                    en: "Vraag de weg. (Ask for directions)",
+                    ja: "Vraag de weg. (道を尋ねてください)",
+                    audio: "Vraag de weg."
+                },
                 conjugation: ["vraag", "vraagt", "vraagt", "vragen"],
                 category: "common"
             },
             {
                 dutch: "antwoorden",
                 translations: { en: "to answer", ja: "答える" },
-                examples: { en: "Antwoord de vraag. (Answer the question)", ja: "Antwoord de vraag. (質問に答えてください)" },
+                examples: {
+                    en: "Antwoord de vraag. (Answer the question)",
+                    ja: "Antwoord de vraag. (質問に答えてください)",
+                    audio: "Antwoord de vraag."
+                },
                 conjugation: ["antwoord", "antwoordt", "antwoordt", "antwoorden"],
                 category: "common"
             },
             {
                 dutch: "helpen",
                 translations: { en: "to help", ja: "助ける" },
-                examples: { en: "Kun je me helpen? (Can you help me?)", ja: "Kun je me helpen? (手伝ってくれますか?)" },
+                examples: {
+                    en: "Kun je me helpen? (Can you help me?)",
+                    ja: "Kun je me helpen? (手伝ってくれますか?)",
+                    audio: "Kun je me helpen?"
+                },
                 conjugation: ["help", "helpt", "helpt", "helpen"],
                 category: "common"
             },
             {
                 dutch: "wonen",
                 translations: { en: "to live", ja: "住む" },
-                examples: { en: "Ik woon in Antwerpen. (I live in Antwerp)", ja: "Ik woon in Antwerpen. (私はアントワープに住んでいます)" },
+                examples: {
+                    en: "Ik woon in Antwerpen. (I live in Antwerp)",
+                    ja: "Ik woon in Antwerpen. (私はアントワープに住んでいます)",
+                    audio: "Ik woon in Antwerpen."
+                },
                 conjugation: ["woon", "woont", "woont", "wonen"],
                 category: "daily"
             },
             {
                 dutch: "bezoeken",
                 translations: { en: "to visit", ja: "訪れる" },
-                examples: { en: "We bezoeken een museum. (We visit a museum)", ja: "We bezoeken een museum. (私たちは博物館を訪れます)" },
+                examples: {
+                    en: "We bezoeken een museum. (We visit a museum)",
+                    ja: "We bezoeken een museum. (私たちは博物館を訪れます)",
+                    audio: "We bezoeken een museum."
+                },
                 conjugation: ["bezoek", "bezoekt", "bezoekt", "bezoeken"],
                 category: "daily"
             },
             {
                 dutch: "reizen",
                 translations: { en: "to travel", ja: "旅行する" },
-                examples: { en: "Hij reist naar Japan. (He travels to Japan)", ja: "Hij reist naar Japan. (彼は日本へ旅行します)" },
+                examples: {
+                    en: "Hij reist naar Japan. (He travels to Japan)",
+                    ja: "Hij reist naar Japan. (彼は日本へ旅行します)",
+                    audio: "Hij reist naar Japan."
+                },
                 conjugation: ["reis", "reist", "reist", "reizen"],
                 category: "daily"
             },
             {
                 dutch: "studeren",
                 translations: { en: "to study", ja: "勉強する" },
-                examples: { en: "Ik studeer geneeskunde. (I study medicine)", ja: "Ik studeer geneeskunde. (私は医学を勉強しています)" },
+                examples: {
+                    en: "Ik studeer geneeskunde. (I study medicine)",
+                    ja: "Ik studeer geneeskunde. (私は医学を勉強しています)",
+                    audio: "Ik studeer geneeskunde."
+                },
                 conjugation: ["studeer", "studeert", "studeert", "studeren"],
                 category: "daily"
             },
             {
                 dutch: "spelen",
                 translations: { en: "to play", ja: "遊ぶ" },
-                examples: { en: "Kinderen spelen buiten. (Children play outside)", ja: "Kinderen spelen buiten. (子供たちは外で遊びます)" },
+                examples: {
+                    en: "Kinderen spelen buiten. (Children play outside)",
+                    ja: "Kinderen spelen buiten. (子供たちは外で遊びます)",
+                    audio: "Kinderen spelen buiten."
+                },
                 conjugation: ["speel", "speelt", "speelt", "spelen"],
                 category: "daily"
             },
             {
                 dutch: "zingen",
                 translations: { en: "to sing", ja: "歌う" },
-                examples: { en: "We zingen een lied. (We sing a song)", ja: "We zingen een lied. (私たちは歌を歌います)" },
+                examples: {
+                    en: "We zingen een lied. (We sing a song)",
+                    ja: "We zingen een lied. (私たちは歌を歌います)",
+                    audio: "We zingen een lied."
+                },
                 conjugation: ["zing", "zingt", "zingt", "zingen"],
                 category: "daily"
             },
             {
                 dutch: "dansen",
                 translations: { en: "to dance", ja: "踊る" },
-                examples: { en: "Zij dansen goed. (They dance well)", ja: "Zij dansen goed. (彼らは上手に踊ります)" },
+                examples: {
+                    en: "Zij dansen goed. (They dance well)",
+                    ja: "Zij dansen goed. (彼らは上手に踊ります)",
+                    audio: "Zij dansen goed."
+                },
                 conjugation: ["dans", "danst", "danst", "dansen"],
                 category: "daily"
             },
             {
                 dutch: "lachen",
                 translations: { en: "to laugh", ja: "笑う" },
-                examples: { en: "We lachen om de grap. (We laugh at the joke)", ja: "We lachen om de grap. (私たちはジョークで笑います)" },
+                examples: {
+                    en: "We lachen om de grap. (We laugh at the joke)",
+                    ja: "We lachen om de grap. (私たちはジョークで笑います)",
+                    audio: "We lachen om de grap."
+                },
                 conjugation: ["lach", "lacht", "lacht", "lachen"],
                 category: "daily"
             },
             {
                 dutch: "huilen",
                 translations: { en: "to cry", ja: "泣く" },
-                examples: { en: "De baby huilt. (The baby cries)", ja: "De baby huilt. (赤ちゃんが泣いています)" },
+                examples: {
+                    en: "De baby huilt. (The baby cries)",
+                    ja: "De baby huilt. (赤ちゃんが泣いています)",
+                    audio: "De baby huilt."
+                },
                 conjugation: ["huil", "huilt", "huilt", "huilen"],
                 category: "daily"
             }
@@ -726,6 +969,7 @@
         let currentLanguage = 'en';
         let currentTheme = 'dark';
         let currentFilter = 'all';
+        let currentSpeech = null;
 
         // Initialize app
         function initApp() {
@@ -750,15 +994,20 @@
                         <div class="verb-dutch">${verb.dutch}</div>
                         <div class="verb-translation">${verb.translations[currentLanguage]}</div>
                     </div>
-                    <div class="verb-example">${verb.examples[currentLanguage]}</div>
+                    <div class="verb-example">
+                        <div class="example-text">${verb.examples[currentLanguage].split(' (')[0]}</div>
+                        <div class="example-translation">${verb.examples[currentLanguage].split(' (')[1]?.replace(')', '') || ''}</div>
+                    </div>
                     <div class="conjugation">
                         ${verb.conjugation.map(form => `<span>${form}</span>`).join('')}
                     </div>
-                    <div class="verb-audio">
-                        <button class="audio-btn" onclick="playAudio('${verb.dutch}')">
-                            🔊
+                    <div class="audio-controls">
+                        <button class="audio-btn" onclick="playAudio('${verb.dutch}', this)">
+                            🔊 ${translations[currentLanguage].playVerb}
                         </button>
-                        <span>${translations[currentLanguage].audioText}</span>
+                        <button class="audio-btn" onclick="playExample('${verb.dutch}', this)">
+                            🎵 ${translations[currentLanguage].playExample}
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -774,16 +1023,69 @@
             statsElement.textContent = text;
         }
 
-        // Play audio using Web Speech API
-        function playAudio(word) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(word);
-                utterance.lang = 'nl-NL';
-                utterance.rate = 0.8;
-                speechSynthesis.speak(utterance);
-            } else {
-                alert(`Playing audio for: ${word}`);
+        // Play verb audio
+        function playAudio(verb, button) {
+            if (currentSpeech) {
+                speechSynthesis.cancel();
             }
+
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="audio-loading"></span> ' + translations[currentLanguage].playing;
+            button.disabled = true;
+
+            const utterance = new SpeechSynthesisUtterance(verb);
+            utterance.lang = 'nl-NL';
+            utterance.rate = 0.8;
+            utterance.pitch = 1.0;
+
+            utterance.onend = () => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                currentSpeech = null;
+            };
+
+            utterance.onerror = () => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                currentSpeech = null;
+            };
+
+            currentSpeech = utterance;
+            speechSynthesis.speak(utterance);
+        }
+
+        // Play example audio
+        function playExample(verb, button) {
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+
+            const verbData = verbs.find(v => v.dutch === verb);
+            if (!verbData) return;
+
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="audio-loading"></span> ' + translations[currentLanguage].playing;
+            button.disabled = true;
+
+            const utterance = new SpeechSynthesisUtterance(verbData.examples.audio);
+            utterance.lang = 'nl-NL';
+            utterance.rate = 0.7;
+            utterance.pitch = 1.0;
+
+            utterance.onend = () => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                currentSpeech = null;
+            };
+
+            utterance.onerror = () => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                currentSpeech = null;
+            };
+
+            currentSpeech = utterance;
+            speechSynthesis.speak(utterance);
         }
 
         // Toggle theme
@@ -822,12 +1124,6 @@
             document.getElementById('install-btn').textContent = t.installBtn;
             document.getElementById('contact-text').innerHTML = `${t.contact}<br>
                 <a href="mailto:mementomorikatsu@gmail.com" class="contact-link">mementomorikatsu@gmail.com</a>`;
-            
-            // Update filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                const filter = btn.getAttribute('data-filter');
-                btn.textContent = t.categories[filter];
-            });
         }
 
         // Setup event listeners
