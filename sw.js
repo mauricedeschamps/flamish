@@ -1,16 +1,17 @@
 const CACHE_NAME = 'flemish-verbs-v1.2.0';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/IMG_20251128_165909_(72_x_72_ピクセル).jpg',
-  '/IMG_20251128_165842_(96_x_96_ピクセル).jpg',
-  '/IMG_20251128_165817_(122_x_122_ピクセル).jpg',
-  '/IMG_20251128_165752_(144_x_144_ピクセル).jpg',
-  '/IMG_20251128_165731_(152_x_152_ピクセル).jpg',
-  '/IMG_20251128_165704_(192_x_192_ピクセル).jpg',
-  '/IMG_20251128_165631_(384_x_384_ピクセル).jpg',
-  '/IMG_20251128_165608_(512_x_512_ピクセル).jpg'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/IMG_20251128_165909_(72_x_72_ピクセル).jpg',
+  './icons/IMG_20251128_165842_(96_x_96_ピクセル).jpg',
+  './icons/IMG_20251128_165817_(122_x_122_ピクセル).jpg',
+  './icons/IMG_20251128_165752_(144_x_144_ピクセル).jpg',
+  './icons/IMG_20251128_165731_(152_x_152_ピクセル).jpg',
+  './icons/IMG_20251128_165704_(192_x_192_ピクセル).jpg',
+  './icons/IMG_20251128_165631_(384_x_384_ピクセル).jpg',
+  './icons/IMG_20251128_165608_(512_x_512_ピクセル).jpg'
+];
 
 // Install event
 self.addEventListener('install', event => {
@@ -22,6 +23,7 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
 // Activate event
@@ -39,6 +41,7 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  self.clients.claim();
 });
 
 // Fetch event
@@ -51,7 +54,6 @@ self.addEventListener('fetch', event => {
           return response;
         }
         return fetch(event.request);
-      }
-    )
+      })
   );
 });
