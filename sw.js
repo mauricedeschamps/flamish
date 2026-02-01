@@ -3,15 +3,14 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png'
-];
+  '/IMG_20251128_165909_(72_x_72_ピクセル).jpg',
+  '/IMG_20251128_165842_(96_x_96_ピクセル).jpg',
+  '/IMG_20251128_165817_(122_x_122_ピクセル).jpg',
+  '/IMG_20251128_165752_(144_x_144_ピクセル).jpg',
+  '/IMG_20251128_165731_(152_x_152_ピクセル).jpg',
+  '/IMG_20251128_165704_(192_x_192_ピクセル).jpg',
+  '/IMG_20251128_165631_(384_x_384_ピクセル).jpg',
+  '/IMG_20251128_165608_(512_x_512_ピクセル).jpg'
 
 // Install event
 self.addEventListener('install', event => {
