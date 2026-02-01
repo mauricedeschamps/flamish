@@ -10,44 +10,44 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icons/icon-72x72.png",
+      "src": "icons/IMG_20251128_165909_(72_x_72_ピクセル).jpg",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-96x96.png",
+      "src": "icons/IMG_20251128_165842_(96_x_96_ピクセル).jpg",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-128x128.png",
+      "src": "icons/IMG_20251128_165817_(122_x_122_ピクセル).jpg",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-144x144.png",
+      "src": "icons/IMG_20251128_165752_(144_x_144_ピクセル).jpg",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-152x152.png",
+      "src": "icons/IMG_20251128_165731_(152_x_152_ピクセル).jpg",
       "sizes": "152x152",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-192x192.png",
+      "src": "icons/IMG_20251128_165704_(192_x_192_ピクセル).jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-384x384.png",
+      "src": "icons/IMG_20251128_165631_(384_x_384_ピクセル).jpg",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "icons/IMG_20251128_165608_(512_x_512_ピクセル).jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpg"
     }
   ],
   "categories": ["education", "language", "utilities"]
