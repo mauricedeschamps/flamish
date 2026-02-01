@@ -1170,6 +1170,7 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            document.getElementById('install-btn').style.display = 'block';
         });
 
         function installApp() {
@@ -1178,9 +1179,14 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
+                        document.getElementById('install-btn').style.display = 'none';
+                    } else {
+                        console.log('User dismissed the install prompt');
                     }
                     deferredPrompt = null;
                 });
+            } else {
+                alert('Your browser does not support PWA installation or the app is already installed.');
             }
         }
 
@@ -1188,8 +1194,14 @@
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
-                    .then(registration => console.log('SW registered'))
-                    .catch(error => console.log('SW registration failed'));
+                    .then(registration => {
+                        console.log('SW registered:', registration);
+                        // Check if app is already installed
+                        if (window.matchMedia('(display-mode: standalone)').matches) {
+                            document.getElementById('install-btn').style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.log('SW registration failed:', error));
             }
         }
 
